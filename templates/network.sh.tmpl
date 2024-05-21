@@ -1,0 +1,31 @@
+#!/bin/sh
+
+token="$(curl -s -X PUT -H 'X-aws-ec2-metadata-token-ttl-seconds: 300' http://169.254.169.254/latest/api/token)"
+instance_id="$(curl -s -H "X-aws-ec2-metadata-token: $token" http://169.254.169.254/latest/meta-data/instance-id)"
+aws_region="$(curl -s -H "X-aws-ec2-metadata-token: $token" http://169.254.169.254/latest/meta-data/placement/region)"
+
+echo "Instance ID: $instance_id"
+echo "Disabling source/destination check for instance $instance_id"
+aws ec2 modify-instance-attribute --region "$aws_region" --no-source-dest-check --instance-id "$instance_id"
+
+max_retries=10
+retry_delay=5
+
+for ((i=1; i<=max_retries; i++)); do
+  aws ec2 attach-network-interface --region "$aws_region" --instance-id "$instance_id" --device-index 1 --network-interface-id "${ENI_ID}"
+  if [ $? -eq 0 ]; then
+      echo "Attaching network device succeeded"
+    exit 0
+  else
+    echo "Attaching device failed. Retry attempt $i"
+    sleep $retry_delay
+  fi
+done
+
+echo "Max retries reached. Attaching ENI failed"
+exit 1
+
+hostnamectl set-hostname ${HOSTNAME}
+echo "HOSTNAME=${HOSTNAME}" >> /etc/sysconfig/network
+systemctl daemon-reload
+

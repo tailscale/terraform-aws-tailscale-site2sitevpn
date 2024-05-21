@@ -1,0 +1,39 @@
+#!/bin/bash
+
+token="$(curl -s -X PUT -H 'X-aws-ec2-metadata-token-ttl-seconds: 300' http://169.254.169.254/latest/api/token)"
+aws_region="$(curl -s -H "X-aws-ec2-metadata-token: $token" http://169.254.169.254/latest/meta-data/placement/region)"
+
+TAILSCALE_AUTH_KEY=$(aws ssm get-parameter --name "${AWS_SSM_PARAM_NAME}" --region "$${aws_region}" --with-decryption | jq .Parameter.Value -r)
+
+max_retries=3
+retry_delay=5
+
+for ((i=1; i<=max_retries; i++)); do
+  # Execute the block of code you want to retry
+  echo "Installing Tailscale"
+  sudo yum install yum-utils -y
+  sudo yum-config-manager --add-repo https://pkgs.tailscale.com/stable/amazon-linux/2/tailscale.repo
+  sudo yum install tailscale -y
+  sudo systemctl enable --now tailscaled
+  
+  # Construct the tailscale up command based on the presence of advertise_tags variable
+  tailscale_cmd="tailscale up --authkey \"$${TAILSCALE_AUTH_KEY}\" --netfilter-mode=off --accept-routes --advertise-routes=\"${ADVERTISE_ROUTES}\" --snat-subnet-routes=false --hostname=\"${HOSTNAME}\""
+  if [[ -n "${ADVERTISE_TAGS}" ]]; then
+    tailscale_cmd+=" --advertise-tags=\"${ADVERTISE_TAGS}\""
+  fi
+
+  # Execute the tailscale up command
+  eval "$${tailscale_cmd}"
+  
+  # Check the exit status of the previous command
+  if [ $? -eq 0 ]; then
+    echo "Tailscale installation and configuration succeeded"
+    exit 0
+  else
+    echo "Tailscale installation and configuration failed. Retry attempt $i"
+    sleep $retry_delay
+  fi
+done
+
+echo "Max retries reached. Tailscale installation and configuration failed"
+exit 1
