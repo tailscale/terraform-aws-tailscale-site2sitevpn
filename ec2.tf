@@ -43,11 +43,12 @@ resource "aws_launch_template" "main" {
 
   user_data = data.cloudinit_config.main.rendered
 
-  
+
 
   network_interfaces {
-    description                 = "${var.name} ephemeral network interface"
-    subnet_id                   = var.subnet_id
+    description = "${var.name} ephemeral network interface"
+    subnet_id   = var.subnet_id
+    #checkov:skip=CKV_AWS_88:Public IP required for direct tailscale connections
     associate_public_ip_address = true
     security_groups             = [aws_security_group.main.id]
   }

@@ -13,9 +13,9 @@ variable "advertise_addresses" {
   type        = list(string)
 }
 
-variable "remote_address" {
+variable "remote_addresses" {
   description = "Address to connect to for the site to site instance"
-  type        = string
+  type        = list(string)
 }
 
 variable "name" {

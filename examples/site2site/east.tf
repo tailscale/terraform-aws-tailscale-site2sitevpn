@@ -2,7 +2,8 @@ module "lbr-vpc-east" {
   providers = {
     aws = aws.east
   }
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
+  version = "5.8.1"
 
   name               = "lbr-site2site-vpc-east"
   cidr               = local.vpc_cidr_east
@@ -14,12 +15,13 @@ module "lbr-vpc-east" {
 
 }
 
+# tflint-ignore: terraform_module_version
 module "lbr-site2site-east" {
   source = "../../"
   providers = {
     aws = aws.east
   }
-  remote_address      = local.vpc_cidr_west
+  remote_addresses    = [local.vpc_cidr_west]
   route_table_ids     = concat(module.lbr-vpc-east.private_route_table_ids, module.lbr-vpc-east.public_route_table_ids)
   vpc_id              = module.lbr-vpc-east.vpc_id
   name                = "lbr-site2site-east"

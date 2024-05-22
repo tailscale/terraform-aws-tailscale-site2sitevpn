@@ -57,7 +57,7 @@ resource "aws_security_group" "main" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = [var.remote_address]
+    cidr_blocks = var.remote_addresses
   }
 
   egress {
@@ -75,10 +75,10 @@ resource "aws_security_group" "main" {
 }
 
 resource "aws_network_interface" "main" {
-  description       = "${var.name} reusable ENI for routing traffic between sites"
-  subnet_id         = var.subnet_id
-  security_groups   = [aws_security_group.main.id]
-  
+  description     = "${var.name} reusable ENI for routing traffic between sites"
+  subnet_id       = var.subnet_id
+  security_groups = [aws_security_group.main.id]
+
   source_dest_check = false
 
   tags = merge(var.tags, {
@@ -87,25 +87,26 @@ resource "aws_network_interface" "main" {
 }
 
 resource "aws_eip" "main" {
-  domain                    = "vpc"
-  network_interface         = aws_network_interface.main.id
-   tags = merge(var.tags, {
+  #checkov:skip=CKV2_AWS_19:Reusable EIP
+  domain            = "vpc"
+  network_interface = aws_network_interface.main.id
+  tags = merge(var.tags, {
     Name = var.name
   })
 }
 
 resource "aws_route" "main" {
-  for_each = toset(var.route_table_ids)
+  count = length(var.route_table_ids) * length(var.remote_addresses)
 
-  route_table_id         = each.value
-  destination_cidr_block = var.remote_address
+  route_table_id         = var.route_table_ids[floor(count.index / length(var.remote_addresses))]
+  destination_cidr_block = var.remote_addresses[count.index % length(var.remote_addresses)]
   network_interface_id   = aws_network_interface.main.id
 }
 
 resource "aws_route" "tailnet" {
-  for_each = toset(var.route_table_ids)
+  count = length(var.route_table_ids)
 
-  route_table_id         = each.value
+  route_table_id         = var.route_table_ids[count.index]
   destination_cidr_block = "100.64.0.0/10"
   network_interface_id   = aws_network_interface.main.id
 }

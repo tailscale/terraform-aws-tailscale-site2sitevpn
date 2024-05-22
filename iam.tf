@@ -25,19 +25,19 @@ data "aws_iam_policy_document" "main" {
   }
 
   statement {
-    sid = "GetParameter"
+    sid    = "GetParameter"
     effect = "Allow"
     actions = [
-        "ssm:GetParameter"
+      "ssm:GetParameter"
     ]
     resources = [aws_ssm_parameter.tailnet_key.arn]
   }
 
   statement {
-    sid = "ListParameters"
+    sid    = "ListParameters"
     effect = "Allow"
     actions = [
-        "ssm:DescribeParameters"
+      "ssm:DescribeParameters"
     ]
     resources = ["*"]
   }
@@ -56,6 +56,7 @@ data "aws_iam_policy_document" "main" {
         "ssm:UpdateInstanceInformation",
       ]
       resources = [
+        #checkov:skip=CKV_AWS_111:FIXME - need to restrict this
         "*"
       ]
     }

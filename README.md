@@ -14,7 +14,7 @@
 | <a name="input_enable_aws_ssm"></a> [enable\_aws\_ssm](#input\_enable\_aws\_ssm) | Whether to attach the minimum required IAM permissions to connect to the instance via SSM. | `bool` | `true` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the site to site instance | `string` | `"t3.medium"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the site to site instance | `string` | n/a | yes |
-| <a name="input_remote_address"></a> [remote\_address](#input\_remote\_address) | Address to connect to for the site to site instance | `string` | n/a | yes |
+| <a name="input_remote_addresses"></a> [remote\_addresses](#input\_remote\_addresses) | Address to connect to for the site to site instance | `list(string)` | n/a | yes |
 | <a name="input_route_table_ids"></a> [route\_table\_ids](#input\_route\_table\_ids) | Route table IDs to route traffic for the site to site instance | `list(string)` | n/a | yes |
 | <a name="input_subnet_id"></a> [subnet\_id](#input\_subnet\_id) | Subnet ID to deploy the site to site instances to | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to the site to site instance | `map(string)` | `{}` | no |

@@ -15,10 +15,16 @@ data "aws_iam_policy_document" "main" {
       "ssm:UpdateInstanceInformation",
     ]
     resources = [
-      "*",
+      aws_instance.main.arn,
     ]
 
   }
+}
+
+resource "aws_iam_policy" "main" {
+  name        = var.name
+  description = "Policy for ${var.name}"
+  policy      = data.aws_iam_policy_document.main.json
 }
 
 resource "aws_iam_role" "main" {
@@ -38,10 +44,7 @@ resource "aws_iam_role" "main" {
     ]
   })
 
-  inline_policy {
-    name   = "Main"
-    policy = data.aws_iam_policy_document.main.json
-  }
+
 
 }
 
@@ -50,6 +53,10 @@ resource "aws_security_group" "main" {
   description = "Security group"
   vpc_id      = var.vpc_id
 
+  #checkov:skip=CKV_AWS_277:Testing instance
+  #checkov:skip=CKV_AWS_25:Testing instance
+  #checkov:skip=CKV_AWS_24:Testing instance
+  #checkov:skip=CKV_AWS_260:Testing instance
   ingress {
     description      = "Allow all traffic to the instance for testing purposes"
     from_port        = 0
@@ -121,14 +128,35 @@ resource "aws_instance" "main" {
   instance_type          = "t3.medium"
   subnet_id              = var.subnet_id
   iam_instance_profile   = aws_iam_instance_profile.main.name
-  key_name = aws_key_pair.main.key_name
+  key_name               = aws_key_pair.main.key_name
   vpc_security_group_ids = [aws_security_group.main.id]
+  user_data_base64       = data.cloudinit_config.main.rendered
+
+  ebs_optimized = true
 
   tags = {
     Name = var.name
   }
 
+  root_block_device {
+    encrypted = true
+  }
+
+  monitoring = true
   lifecycle {
     create_before_destroy = true
   }
+
+  # Enforce IMDSv2
+  metadata_options {
+    http_endpoint = "enabled"
+    http_tokens   = "required"
+  }
+
+}
+
+resource "aws_iam_policy_attachment" "main" {
+  name       = var.name
+  policy_arn = aws_iam_policy.main.arn
+  roles      = [aws_iam_role.main.name]
 }
