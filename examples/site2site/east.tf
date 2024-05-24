@@ -28,6 +28,7 @@ module "lbr-site2site-east" {
   subnet_id           = module.lbr-vpc-east.public_subnets[0]
   advertise_addresses = [local.vpc_cidr_east]
   tailscale_auth_key  = var.tailscale_auth_key
+  depends_on          = [module.lbr-vpc-east]
 }
 
 
@@ -40,4 +41,6 @@ module "lbr-s2sclient-east" {
   subnet_id       = module.lbr-vpc-east.private_subnets[1]
   vpc_id          = module.lbr-vpc-east.vpc_id
   ssh_key_content = var.ssh_key_content
+
+  depends_on = [module.lbr-vpc-east]
 }

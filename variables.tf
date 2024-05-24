@@ -53,6 +53,13 @@ variable "enable_aws_ssm" {
   default     = true
 }
 
+variable "enable_tailscale_ssh" {
+  description = "Whether to enable Tailscale SSH."
+  type        = bool
+  default     = true
+}
+
+
 variable "route_table_ids" {
   description = "Route table IDs to route traffic for the site to site instance"
   type        = list(string)

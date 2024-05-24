@@ -12,6 +12,7 @@
 | <a name="input_architecture"></a> [architecture](#input\_architecture) | Architecture of the instance | `string` | `"x86_64"` | no |
 | <a name="input_ebs_root_volume_size"></a> [ebs\_root\_volume\_size](#input\_ebs\_root\_volume\_size) | Size of the root volume in GB | `number` | `20` | no |
 | <a name="input_enable_aws_ssm"></a> [enable\_aws\_ssm](#input\_enable\_aws\_ssm) | Whether to attach the minimum required IAM permissions to connect to the instance via SSM. | `bool` | `true` | no |
+| <a name="input_enable_tailscale_ssh"></a> [enable\_tailscale\_ssh](#input\_enable\_tailscale\_ssh) | Whether to enable Tailscale SSH. | `bool` | `true` | no |
 | <a name="input_instance_type"></a> [instance\_type](#input\_instance\_type) | Instance type to use for the site to site instance | `string` | `"t3.medium"` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the site to site instance | `string` | n/a | yes |
 | <a name="input_remote_addresses"></a> [remote\_addresses](#input\_remote\_addresses) | Address to connect to for the site to site instance | `list(string)` | n/a | yes |

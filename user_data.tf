@@ -25,6 +25,7 @@ data "cloudinit_config" "main" {
       ADVERTISE_ROUTES   = join(",", var.advertise_addresses)
       ADVERTISE_TAGS     = join(",", var.advertise_tags)
       HOSTNAME           = var.name
+      TAILSCALE_SSH      = var.enable_tailscale_ssh
     })
   }
 

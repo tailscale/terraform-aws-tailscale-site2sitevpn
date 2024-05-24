@@ -17,7 +17,7 @@ for ((i=1; i<=max_retries; i++)); do
   sudo systemctl enable --now tailscaled
   
   # Construct the tailscale up command based on the presence of advertise_tags variable
-  tailscale_cmd="tailscale up --authkey \"$${TAILSCALE_AUTH_KEY}\" --netfilter-mode=off --accept-routes --advertise-routes=\"${ADVERTISE_ROUTES}\" --snat-subnet-routes=false --hostname=\"${HOSTNAME}\""
+  tailscale_cmd="tailscale up --authkey \"$${TAILSCALE_AUTH_KEY}\" --ssh=\"${TAILSCALE_SSH}\" --netfilter-mode=off --accept-routes --advertise-routes=\"${ADVERTISE_ROUTES}\" --snat-subnet-routes=false --hostname=\"${HOSTNAME}\""
   if [[ -n "${ADVERTISE_TAGS}" ]]; then
     tailscale_cmd+=" --advertise-tags=\"${ADVERTISE_TAGS}\""
   fi
